@@ -13,19 +13,22 @@ def JsonConfig(path = './', override_globals = False) ->dict :
     import our json file as a dict, into the global()[]
     '''
     from os.path import isfile
+    from .platform import findFiles
     if not isfile(path) :
         path = findFiles(path, "config.json")
     json_dict = dict()
+    f = None
     try:
         f = open(path, "r")
         s = str(f.read())
-        import json
-        json_dict = json.loads(s)
+        from json import loads
+        json_dict = loads(s)
         if override_globals : 
             for k, v in json_dict.items() :
                 globals()[k] = v
     except:
-        pass
+        raise
     finally:
-        f.close()
+        if f != None :
+            f.close()
     return json_dict

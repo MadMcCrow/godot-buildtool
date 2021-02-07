@@ -7,6 +7,15 @@
 # Licensed under the MIT License. You may obtain a copy of the License at https://opensource.org/licenses/mit-license.php   #
 #
 
+def _description(JsonConfig :str):
+    d = JsonConfig['project']
+    return d['description']
+
+
+def _projectName(JsonConfig :str):
+    d = JsonConfig['project']
+    return d['name']
+
 #
 #   Desktop file generation
 #	This creates a shortcut for linux users

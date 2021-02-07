@@ -8,40 +8,29 @@
 # Licensed under the MIT License. You may obtain a copy of the License at https://opensource.org/licenses/mit-license.php   #
 #
 
-# config is in json form now
-from functions import importJsonConfig
-_JsonConfig = importJsonConfig("build/config.json")
 
-
-def _godotPath():
-    d = _JsonConfig['godot']
+def _godotPath(JsonConfig :str):
+    d = JsonConfig['godot']
     return d['path']
 
-def _customPath():
-    d = _JsonConfig['project']
+def _customPath(JsonConfig :str):
+    d = JsonConfig['project']
     return d['custom.py']
 
-def _projectName():
-    d = _JsonConfig['project']
-    return d['name']
 
-def _description():
-    d = _JsonConfig['project']
-    return d['description']
-
-def _shared():
-    d = _JsonConfig['build']
+def _shared(JsonConfig :str):
+    d = JsonConfig['build']
     return d['shared']
 
-def _sources():
-    d = _JsonConfig['project']
+def _sources(JsonConfig :str):
+    d = JsonConfig['project']
     return d['sources']
 
 
 
 # color output
 def _buildPrint(mode, txt, end='\n') :
-    from functions import color
+    from .colors import color
     if "HEADER" in mode :
         color.print(color.HEADER, str(txt), end = end)
     if "BUILD" in mode :
@@ -76,8 +65,8 @@ def _buildTime():
 def _sharedLib():
     shared_modules = ""
     try:
-        from functions import getGitFolders
-        from functions import importJsonConfig
+        from .platform import getGitFolders
+        from .platform import importJsonConfig
         module_list = getGitFolders(_sources())
         for module in module_list:
             module_shared_var_name = '_'.join(
@@ -87,8 +76,6 @@ def _sharedLib():
         raise
     finally:
         return shared_modules
-
-
 
 
 #
@@ -137,20 +124,21 @@ def _runScons(cmd : str, godot_path : str ) :
             raise BuildError
     print('\r', end = '\x1b[1K') # clean terminal
 
-
-
 #
 #	build godot with custom profile
 #
-def build():
+def build(json_path : str):
+    # config is in json form now
+    from .json import JsonConfig
+    JsonConfig = JsonConfig(json_path)
     start_time = _buildTime()
     _buildPrint("HEADER", "--- build started  ---")
     try:
-        cmd = _buildCommand(_customPath(), _shared(), "")
+        cmd = _buildCommand(_customPath(JsonConfig), _shared(JsonConfig), "")
         _buildPrint("INFO", "building godot with command : \n{}".format(cmd))
-        _runScons(cmd, _godotPath())
+        _runScons(cmd, _godotPath(JsonConfig))
     except:
-        _buildPrint("ERROR" , "Failed to buid {} with {}".format(_godotPath(), _customPath()))
+        _buildPrint("ERROR" , "Failed to buid {} with {}".format(_godotPath(JsonConfig), _customPath(JsonConfig)))
         raise
     else:
         buildtime = _buildTime() - start_time

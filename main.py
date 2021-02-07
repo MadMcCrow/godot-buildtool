@@ -13,7 +13,6 @@
 #
 def clean():
     pass
-
 #
 #	print help info
 #	TODO : automate this
@@ -21,47 +20,49 @@ def clean():
 def _help():
     pass
 
-
-#
-#	will create a shortcut to the editor
-#
-def shortcut():
-    try:
-        from os import getcwd
-        from functions import platform
-        if platform.isLinux():
-            from functions.shortcuts import generateDesktopFile
-            generateDesktopFile(getcwd() + "/" + _projectName() + ".desktop")
-        else:
-            raise NotImplementedError
-    except:
-        raise
-
 #
 #	handle command line argument
 #
-def arg_condition(arg: str, arg_list: list) -> bool:
-    return arg in arg_list
-
+def arg_condition( condition : list) -> list:
+    retval = []
+    from sys import argv
+    for cd in condition :
+        retval += [t for t in argv[1:] if t.startswith(cd)] 
+    print(retval)
+    return retval
 
 #
 #	Main setup function
 #
 def main():
-    import sys
-    for arg in sys.argv:
-        if arg_condition(arg, ["--help", "-h", "h", "help"]):
-            _help()
-            return
+    
 
-        if arg_condition(arg, ["--build", "-b", "-b", "build"]):
-            from functions.build import build
-            build()
+    if arg_condition(["--help", "-h"]):
+        _help()
+        return
 
-        if arg_condition(arg, ["--shortcut", "-s", "s", "shortcut"]):
-            shortcut()
+    json = arg_condition(["--json", "-j", "j", "json"])
+    try :
+        json_config = json[0].split('=')[1]
+    except :
+        json_config = None
+        pass
+    print(json_config)
+
+    if arg_condition(["--build", "-b", "-b", "build"]):
+        if json_config != None :
+            from functions import build
+            build.build(str(json_config))
+
+    if arg_condition(["--shortcut", "-s", "s", "shortcut"]):
+        from shortcuts import shortcut
+        shortcut()
 
 
 # Run setup program
 if __name__ == "__main__":
+    # add functions to path:
+    import sys
+    # insert at 1, 0 is the script path (or '' in REPL)
+    sys.path.insert(1, './functions')
     main()
