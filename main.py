@@ -28,7 +28,6 @@ def arg_condition( condition : list) -> list:
     from sys import argv
     for cd in condition :
         retval += [t for t in argv[1:] if t.startswith(cd)] 
-    print(retval)
     return retval
 
 #
@@ -47,7 +46,6 @@ def main():
     except :
         json_config = None
         pass
-    print(json_config)
 
     if arg_condition(["--build", "-b", "-b", "build"]):
         if json_config != None :
